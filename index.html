@@ -3,20 +3,26 @@
 <head>
   <title>Habit Tracker</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: auto; }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
     input, select, button { display: block; margin: 10px 0; width: 100%; padding: 8px; }
+    h2 { margin-top: 30px; }
+    #result { margin-top: 20px; color: green; }
   </style>
 </head>
 <body>
+  <h1>Habit Tracker</h1>
+
   <h2>Add Habit</h2>
   <input id="habitName" placeholder="Habit name">
-  <select id="habitFrequency">
+
+  <select id="habitFrequency" onchange="toggleDaysInput()">
     <option value="Daily">Daily</option>
-    <option value="Weekly: 1x">Weekly: 1x</option>
-    <option value="Weekly: 2x">Weekly: 2x</option>
-    <option value="Weekly: 3x">Weekly: 3x</option>
-    <option value="Weekly: Mon,Wed,Fri">Weekly: Mon,Wed,Fri</option>
+    <option value="Weekly">Weekly</option>
+    <option value="Monthly">Monthly</option>
   </select>
+
+  <input id="habitDays" placeholder="e.g. Mon,Wed,Fri or 1st" style="display: none;">
+
   <button onclick="addHabit()">Add Habit</button>
 
   <h2>Log Habit</h2>
@@ -34,23 +40,35 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbyT6h2cbuziYd_bvjBNknDWXMyVDhRaaSsoau4b1eZ29Ig-cRMCt0heHyWB7ZVV2mSZ/exec";
 
+    function toggleDaysInput() {
+      const frequency = document.getElementById("habitFrequency").value;
+      const daysInput = document.getElementById("habitDays");
+      daysInput.style.display = (frequency === "Weekly" || frequency === "Monthly") ? "block" : "none";
+    }
+
     function addHabit() {
       const name = document.getElementById("habitName").value;
       const frequency = document.getElementById("habitFrequency").value;
+      const days = document.getElementById("habitDays").value;
       const createdDate = new Date().toISOString().split('T')[0];
 
       fetch(API_URL, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "addHabit",
           name,
           frequency,
+          days,
           createdDate
-        }),
-        headers: { "Content-Type": "application/json" }
+        })
       })
       .then(res => res.text())
-      .then(msg => document.getElementById("result").innerText = msg);
+      .then(msg => {
+        document.getElementById("result").innerText = msg;
+        document.getElementById("habitName").value = "";
+        document.getElementById("habitDays").value = "";
+      });
     }
 
     function logHabit() {
@@ -60,16 +78,20 @@
 
       fetch(API_URL, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "logHabit",
           habitId,
           date,
           status
-        }),
-        headers: { "Content-Type": "application/json" }
+        })
       })
       .then(res => res.text())
-      .then(msg => document.getElementById("result").innerText = msg);
+      .then(msg => {
+        document.getElementById("result").innerText = msg;
+        document.getElementById("logHabitId").value = "";
+        document.getElementById("logDate").value = "";
+      });
     }
   </script>
 </body>
