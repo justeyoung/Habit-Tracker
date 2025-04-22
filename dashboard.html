@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Habit Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    h2 { margin-top: 40px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h1>Habit Tracker Dashboard</h1>
+  <table id="habitTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Habit</th>
+        <th>Frequency</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyT6h2cbuziYd_bvjBNknDWXMyVDhRaaSsoau4b1eZ29Ig-cRMCt0heHyWB7ZVV2mSZ/exec";
+
+    fetch(`${API_URL}?action=getHabits`)
+      .then(res => res.json())
+      .then(habits => {
+        const tbody = document.querySelector("#habitTable tbody");
+        habits.forEach(habit => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${habit.id}</td>
+            <td>${habit.name}</td>
+            <td>${habit.frequency}</td>
+            <td>${habit.createdDate}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+  </script>
+</body>
+</html>
